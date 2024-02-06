@@ -13,7 +13,8 @@ defmodule OrgDb.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {OrgDb.Application, []}
     ]
   end
 
@@ -24,6 +25,7 @@ defmodule OrgDb.MixProject do
       {:bandit, "~> 1.0"},
       {:exqlite, "~> 0.18"},
       {:file_system, "~> 1.0"},
+      {:uniq, "~> 0.6"},
       # ----- testing
       {:mix_test_interactive, path: "~/src/Forks/mix_test_interactive", only: :dev, runtime: false}
     ]
