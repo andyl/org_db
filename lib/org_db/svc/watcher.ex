@@ -3,7 +3,7 @@ defmodule OrgDb.Svc.Watcher do
   use GenServer
 
   alias OrgDb.Util
-  # alias OrgDb.Doc.Svc.DocStage
+  alias OrgDb.Svc.Manager
 
 
   @moduledoc "Watch the filesystem for changes."
@@ -30,16 +30,16 @@ defmodule OrgDb.Svc.Watcher do
 
   def handle_info({:file_event, _pid, {path, [:modified, :closed]}}, state) do
     if String.ends_with?(path, ".md") do
-      IO.puts("Modified: #{path}")
-      # Indexer.rebuild()
+      IO.puts("Upsert: #{path}")
+      Manager.upsert(path)
     end
     {:noreply, state}
   end
 
   def handle_info({:file_event, _pid, {path, [:deleted]}}, state) do
     if String.ends_with?(path, ".md") do
-      IO.puts("Deleted: #{path}")
-      # Indexer.rebuild()
+      IO.puts("Delete: #{path}")
+      Manager.delete(path)
     end
     {:noreply, state}
   end
