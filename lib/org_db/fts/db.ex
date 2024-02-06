@@ -5,6 +5,8 @@ defmodule OrgDb.Fts.Db do
   alias Exqlite.Sqlite3
   alias OrgDb.Util
   alias OrgDb.Doc.Section
+  alias OrgDb.Doc
+
 
   def open do
     open(":memory:")
@@ -68,6 +70,26 @@ defmodule OrgDb.Fts.Db do
     conn
   end
 
+  def load_file(conn, filepath) do
+    filepath
+    |> Doc.File.ingest()
+    |> Enum.each(&(load_row(conn, &1)))
+  end
+
+  def delete(conn, filepath) do
+    cmd = "DELETE FROM sections WHERE filepath = '#{filepath}'"
+    {:ok, statement} = Sqlite3.prepare(conn, cmd)
+    :done = Sqlite3.step(conn, statement)
+    conn
+  end
+
+  def update(conn, filepath) do
+    delete(conn, filepath)
+    load_file(conn, filepath)
+    conn
+  end
+
+
   def select_all(conn) do
     cmd = "SELECT * FROM sections;"
     {:ok, statement} = Exqlite.Sqlite3.prepare(conn, cmd)
@@ -84,11 +106,13 @@ defmodule OrgDb.Fts.Db do
     gen_result(conn, statement, [], Sqlite3.step(conn, statement))
   end
 
-  def gen_result(conn, statement, acc, {:row, val}) do
+  # ----- helpers
+
+  defp gen_result(conn, statement, acc, {:row, val}) do
     gen_result(conn, statement, acc ++ [val], Sqlite3.step(conn, statement))
   end
 
-  def gen_result(_conn, _statement, acc, :done) do
+  defp gen_result(_conn, _statement, acc, :done) do
     acc
   end
 end
