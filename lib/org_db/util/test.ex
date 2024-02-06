@@ -1,20 +1,44 @@
 defmodule OrgDb.Util.Test do
 
-  @dir "/tmp/test_dir"
+  def base_dir do
+    "/tmp/test_dir"
+  end
 
-  def base_dir, do: @dir
+  def base_file do
+    base_dir() <> "/test1.md"
+  end
+
+  def base_text do
+    """
+    # Base Text
+
+    Some Text
+
+    ## Section1
+
+    This is section1
+
+    ## Section2
+
+    This is section2
+    """
+  end
+
+  # -----
 
   def test_dir do
-    "/home/aleak/src/md_tools/data"
+    "/home/aleak/src/org_db/data"
   end
 
   def test_file do
-    "/home/aleak/src/md_tools/data/TopMOC.md"
+    "/home/aleak/src/org_db/data/TopMOC.md"
   end
 
   def test_text do
     test_file() |> File.read!()
   end
+
+  # -----
 
   def org_dir do
     "/home/aleak/util/org"
@@ -31,14 +55,13 @@ defmodule OrgDb.Util.Test do
   # -----
 
   def setup do
-    File.rm_rf(@dir)
-    File.mkdir_p(@dir)
-    File.mkdir_p(@dir <> "/.md_tools")
-    File.write("#{@dir}/test1.md", "TestData")
+    File.rm_rf(base_dir())
+    File.mkdir_p(base_dir())
+    File.write(base_file(), base_text())
   end
 
   def teardown do
-    File.rm_rf(@dir)
+    File.rm_rf(base_dir())
   end
 
 end
