@@ -1,10 +1,8 @@
-defmodule OrgDb.Doc.Svc.Supervisor do
+defmodule OrgDb.Fts.Svc.Supervisor do
 
-  # @moduledoc false
-  #
+  @moduledoc false
+
   # use Supervisor
-  #
-  # @dir "/home/aleak/util/org"
   #
   # def start_link(init_arg) do
   #   Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
@@ -14,8 +12,10 @@ defmodule OrgDb.Doc.Svc.Supervisor do
   # def init(_init_arg) do
   #   if Application.get_env(:md_tools, :fts_server) do
   #     children = [
-  #       {OrgDb.Doc.Svc.Watcher, [base_dir: @dir]},
-  #       {OrgDb.Doc.Svc.DocStage, [base_dir: @dir]}
+  #       {OrgDb.Fts.Svc.Watcher, [dirs: ["/home/aleak/util/org"]]},
+  #        OrgDb.Fts.Svc.Indexer,
+  #        OrgDb.Fts.Svc.Manager,
+  #        OrgDb.Fts.Svc.Httpd.Server,
   #     ]
   #
   #     Supervisor.init(children, strategy: :one_for_one)
