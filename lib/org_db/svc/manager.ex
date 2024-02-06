@@ -14,7 +14,7 @@ defmodule OrgDb.Svc.Manager do
 
   @doc "Search the database"
   def search(query) do
-    GenServer.call(__MODULE__, {:sm_search, query})
+    GenServer.call(@procname, {:sm_search, query})
   end
 
   @doc "Retrieve all records"
@@ -47,13 +47,13 @@ defmodule OrgDb.Svc.Manager do
 
   @doc false
   def start_link(args) do
+    Util.IO.puts("Starting FTS DB Manager")
     GenServer.start_link(__MODULE__, args, name: @procname)
   end
 
   @doc false
   def init(args) do
     basedir = Keyword.get(args, :base_dir, "/home/aleak/util/org")
-    Util.IO.puts("Starting FTS Manager")
     db = Db.open(":memory:")
          |> reload(basedir)
     {:ok, %{basedir: basedir, db: db}}

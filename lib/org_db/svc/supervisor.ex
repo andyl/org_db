@@ -17,7 +17,7 @@ defmodule OrgDb.Svc.Supervisor do
       children = [
         {OrgDb.Svc.Manager, [base_dir: @dir]},
         {OrgDb.Svc.Watcher, [base_dir: @dir]},
-        {OrgDb.Https.Server, []}
+        {OrgDb.Svc.Httpd.Server, []}
       ]
       Supervisor.init(children, strategy: :one_for_one)
     else
