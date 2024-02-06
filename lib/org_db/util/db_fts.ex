@@ -28,18 +28,18 @@ defmodule OrgDb.Util.DbFts do
     |> String.replace("\n", "")
   end
 
-  def create_update_trigger(table) do
+  def create_delete_trigger(table) do
     """
     CREATE TRIGGER #{table}_ad AFTER DELETE ON #{table}
       BEGIN
-          INSERT INTO #{table}_fts (#{table}_fts, rowid)
-          VALUES ('delete', old.id, old.#{table}name, old.short_description);
+        INSERT INTO #{table}_fts (doctitle, sectitle, body, uuid)
+      VALUES ('delete', old.doctitle, old.sectitle, old.body);
       END
     """
     |> String.replace("\n", "")
   end
 
-  def create_delete_trigger(table) do
+  def create_update_trigger(table) do
     """
     CREATE TRIGGER #{table}_au AFTER UPDATE ON #{table}
       BEGIN
