@@ -1,7 +1,7 @@
-defmodule OrgDb.SearchFts.DbTest do
+defmodule OrgDb.Fts.DbTest do
   use ExUnit.Case
 
-  alias OrgDb.SearchFts.Db
+  alias OrgDb.Fts.Db
   alias OrgDb.Doc.Section
 
   describe "#open/0" do

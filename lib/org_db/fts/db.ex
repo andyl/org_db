@@ -1,4 +1,4 @@
-defmodule OrgDb.SearchFts.Db do
+defmodule OrgDb.Fts.Db do
 
   @moduledoc "Sqlite full-text-search operations."
 
