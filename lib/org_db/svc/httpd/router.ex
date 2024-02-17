@@ -30,46 +30,76 @@ defmodule OrgDb.Svc.Httpd.Router do
     send_resp(conn, 200, result)
   end
 
+  # /search_nvim?query='my query'
+  get "/search_nvim" do
+    query = Plug.Conn.fetch_query_params(conn).query_params["query"]
+
+    OrgDb.Util.IO.puts("search_nvim: #{query}")
+
+    result = case query do
+      nil -> "[]"
+      _ -> gen_nvim_response(query)
+    end
+
+    send_resp(conn, 200, result)
+  end
+
   match _ do
     Logger.error("File not found: #{conn.request_path}")
 
     send_resp(conn, 404, "NOT FOUND")
   end
 
-  # defp delete_body(list) do
-  #   delete_at(list, 1)
-  # end
-
-  # defp delete_at(list, index) do
+  # defp retain_at(list, index_list) when is_list(index_list) do
   #   list
   #   |> Enum.with_index()
-  #   |> Enum.reject(fn {_, idx} -> idx == index end)
+  #   |> Enum.reject(fn {_, idx} -> idx not in index_list end)
   #   |> Enum.map(fn {elem, _} -> elem end)
   # end
 
-  defp retain_at(list, index_list) when is_list(index_list) do
-    list
-    |> Enum.with_index()
-    |> Enum.reject(fn {_, idx} -> idx not in index_list end)
-    |> Enum.map(fn {elem, _} -> elem end)
+  defp gen_response(query) do
+    query
+    |> clean_query()
+    |> Manager.search()
+    |> Jason.encode!()
   end
 
-  defp gen_response(query) do
-    clean_query =
+  defp gen_nvim_response(query) do
+    query
+    |> clean_query()
+    |> Manager.search()
+    |> Enum.map(fn list -> package_elements(list) end)
+    |> prepend_position()
+    |> Jason.encode!()
+  end
+
+  defp package_elements([doctitle, sectitle, path, startline]) do
+    subpath = last_two_segments(path)
+    [doctitle, sectitle, path, subpath, startline]
+  end
+
+  defp last_two_segments(path) do
+    segments = String.split(path, "/")
+    case Enum.take(segments, -2) do
+      [] -> ""
+      last_two_segments -> Enum.join(last_two_segments, "/")
+    end
+  end
+
+  def prepend_position(list_of_lists) do
+    Enum.with_index(list_of_lists, 1)
+    |> Enum.map(fn {sub_list, index} -> [index] ++ sub_list end)
+  end
+
+  defp clean_query(query) do
       query
       |> String.replace("\"", "")
       |> String.replace("'", "")
       |> String.replace("\\", "")
-
-    Manager.search(clean_query)
-    # |> Enum.map(&delete_body(&1))
-    |> Enum.map(&retain_at(&1, [0,4,7,8,9]))
-    |> Jason.encode!()
   end
 
   defp gen_all do
     Manager.select_all()
-    |> Enum.map(&retain_at(&1, [0,4,7,8,9]))
     |> Jason.encode!()
   end
 end

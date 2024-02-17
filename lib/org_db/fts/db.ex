@@ -89,16 +89,19 @@ defmodule OrgDb.Fts.Db do
     conn
   end
 
+  defp fields do
+    "doctitle, sectitle, filepath, startline"
+  end
 
   def select_all(conn) do
-    cmd = "SELECT * FROM sections;"
+    cmd = "SELECT #{fields()} FROM sections;"
     {:ok, statement} = Exqlite.Sqlite3.prepare(conn, cmd)
     gen_result(conn, statement, [], Sqlite3.step(conn, statement))
   end
 
   def search(conn, query) do
     cmd = """
-    SELECT * FROM sections
+    SELECT #{fields()} FROM sections
     WHERE ROWID IN
     (SELECT ROWID FROM sections_fts WHERE sections_fts MATCH '#{query}' ORDER BY rank);
     """
